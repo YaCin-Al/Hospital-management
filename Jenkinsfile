@@ -17,7 +17,12 @@ pipeline {
                 bat 'mvn clean verify'
             }
         }
-
+        stage('SonarQube Analysis') {
+            steps {
+                bat 'mvn sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_c17e5a2dcb0e4ce0fc034982c459bcf1f77b907c'
+            }
+        }
+        /*
         // NEW STAGE FOR SONARQUBE
         stage('SonarQube Analysis') {
             steps {
@@ -28,6 +33,7 @@ pipeline {
             }
         }
     }
+    */
 
     post {
         success { echo 'Analyse SonarQube terminée !' }
