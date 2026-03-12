@@ -2,57 +2,35 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3'
+        maven 'Maven_3' // Your working Maven tool
     }
 
     stages {
-
-        stage('1 - Clone') {
+        stage('Clone') {
             steps {
-                echo 'Cloning repository...'
-                checkout scm
+                git branch: 'main', url: 'https://github.com/YaCin-Al/Hospital-management'
             }
         }
 
-        stage('2 - Compile') {
+        stage('Build & Test') {
             steps {
-                echo 'Compiling project...'
-                bat 'mvn clean compile'
+                bat 'mvn clean verify'
             }
         }
 
-        stage('3 - Unit Tests') {
+        // NEW STAGE FOR SONARQUBE
+        stage('SonarQube Analysis') {
             steps {
-                echo 'Running unit tests...'
-                bat 'mvn test'
-            }
-        }
-
-        stage('4 - Package') {
-            steps {
-                echo 'Packaging application...'
-                bat 'mvn package -DskipTests'
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: '**/target/*.war, **/target/*.jar', fingerprint: true
+                // This 'withSonarQubeEnv' must match the Server Name from Step 1
+                withSonarQubeEnv('SonarLocal') {
+                    bat 'mvn sonar:sonar'
                 }
-            }
-        }
-
-        stage('5 - SonarQube Analysis') {
-            steps {
-                echo 'SonarQube will be configured in next step...'
             }
         }
     }
 
     post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed.'
-        }
+        success { echo 'Analyse SonarQube terminée !' }
+        failure { echo 'Le build ou l\'analyse a échoué.' }
     }
 }
